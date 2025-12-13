@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: spring-boot-project-cinema
+    ports:
+      - "8080:8080"
+    environment:
+      # Configurações opcionais do Spring Boot podem ser passadas aqui
+      SPRING_PROFILES_ACTIVE: docker
+    volumes:
+      - .:/app
+    # inicia sem realizar os testes  
+    command: ["./mvnw", "spring-boot:run"]
+    # abaixo o comando inicia relizando os testes primeiro e depois rodar o projeto
+    #command: /bin/sh -c "./mvnw clean test && ./mvnw spring-boot:run"
+  db:
+    image: mysql:8.2
+    container_name: cinema-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cinema
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3307"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
