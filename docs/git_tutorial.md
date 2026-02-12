@@ -92,8 +92,7 @@ O projeto utiliza **branches separadas para cada desenvolvedor**, garantindo iso
 ### 5.1 Estrutura de Branches
 
 * `main`: branch principal; apenas avaliadores têm permissão para merge
-* `dev/<nome>`: branch de cada desenvolvedor
-* `feature/<nome-da-feature>`: opcional para desenvolvimento de funcionalidades isoladas
+* `feature/<nome-da-feature>`: para desenvolvimento de funcionalidades isoladas
 * `hotfix/<descricao>`: correção rápida em produção (para avaliadores)
 
 ### 5.2 Criação de Branch
@@ -103,8 +102,8 @@ O projeto utiliza **branches separadas para cada desenvolvedor**, garantindo iso
 git checkout main
 git pull origin main
 
-# Criar branch do dev
-git checkout -b dev/<seu-nome>
+# Criar branch da feature
+git checkout -b feature/<nome-da-feature>`
 ```
 
 ### 5.3 Commit de Alterações
