@@ -27,7 +27,6 @@ public class Ingresso {
 
     //geters seters
 
-
     public Usuario getUsuario() {
         return usuario;
     }
