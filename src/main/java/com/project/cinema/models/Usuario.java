@@ -32,6 +32,7 @@ public class Usuario {
     private List<Ingresso> ingressos;
 
 
+
     public UUID getId() {
         return id;
     }
