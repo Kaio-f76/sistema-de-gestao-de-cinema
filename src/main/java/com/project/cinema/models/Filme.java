@@ -17,7 +17,7 @@ public class Filme {
     private Double valorFilme;
     private String horario;
     @Temporal(TemporalType.DATE)
-    private Date date;
+    private Date data;
 
     //getters seters
 
@@ -62,10 +62,10 @@ public class Filme {
     }
 
     public Date getDate() {
-        return date;
+        return data;
     }
 
     public void setDate(Date date) {
-        this.date = date;
+        this.data = date;
     }
 }
