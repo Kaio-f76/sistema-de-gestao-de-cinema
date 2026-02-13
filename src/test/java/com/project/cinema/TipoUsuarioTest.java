@@ -7,7 +7,7 @@ import com.project.cinema.models.TipoUsuario;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+
 class TipoUsuarioTest {
 
     @Test
