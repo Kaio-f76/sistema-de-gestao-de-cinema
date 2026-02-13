@@ -21,11 +21,19 @@ public class Ingresso {
     private String tipoIngresso;
     private Double ValorI;
     private Double ValorDesconto;
-//    @ManyToOne
-//    @JoinColumn(name = "usuario_id")
-//    private Usuario usuario;
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 
     //geters seters
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 
     public UUID getId() {
         return id;

@@ -12,9 +12,9 @@ services:
     volumes:
       - .:/app
     # inicia sem realizar os testes  
-    command: ["./mvnw", "spring-boot:run"]
+    # command: ["./mvnw", "spring-boot:run"]
     # abaixo o comando inicia relizando os testes primeiro e depois rodar o projeto
-    #command: /bin/sh -c "./mvnw clean test && ./mvnw spring-boot:run"
+    command: /bin/sh -c "./mvnw clean test && ./mvnw spring-boot:run"
   db:
     image: mysql:8.2
     container_name: cinema-mysql

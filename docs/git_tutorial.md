@@ -50,7 +50,7 @@ git --version
 
 ### 3.2 Windows
 
-1. Baixar Git for Windows no site oficial: [https://git-scm.com/download/win](https://git-scm.com/download/win)
+1. Baixar Git for Windows no site oficial
 2. Executar instalador e manter as configurações padrão
 3. Verificar instalação:
 
@@ -87,7 +87,7 @@ git config --list
 
 ## 5. Fluxo de Trabalho no Projeto
 
-O projeto utiliza **branches separadas para cada desenvolvedor**, garantindo isolamento e revisão de código antes da integração na main.
+O projeto utiliza **branches separadas para cada funcionalidade**, garantindo isolamento e revisão de código antes da integração na main.
 
 ### 5.1 Estrutura de Branches
 
@@ -103,7 +103,7 @@ git checkout main
 git pull origin main
 
 # Criar branch da feature
-git checkout -b feature/<nome-da-feature>`
+git checkout -b feature/<nome-da-feature>
 ```
 
 ### 5.3 Commit de Alterações
@@ -123,15 +123,15 @@ git commit -m "feat: adicionar endpoint de login"
 ### 5.4 Envio da Branch para o Repositório Remoto
 
 ```bash
-git push origin dev/<seu-nome>
+git push origin feature/<nome-da-feature>
 ```
 
 ### 5.5 Pull Request (PR)
 
-* Abrir PR da sua branch `dev/<seu-nome>` para `main`
+* Abrir PR da sua branch `feature/<nome-da-feature>` para `main`
 * Revisores irão validar e aprovar a PR
 * Após aprovação, avaliadores fazem merge na branch `main`
-* Branch do desenvolvedor pode ser atualizada com:
+* Para manter a branch atualizada com a main:
 
 ```bash
 git fetch origin
@@ -171,10 +171,10 @@ git checkout main
 git pull origin main
 ```
 
-2. Criar branch do dev:
+2. Criar branch da feature:
 
 ```bash
-git checkout -b dev/<seu-nome>
+git checkout -b feature/<nome-da-feature>
 ```
 
 3. Desenvolver código e realizar commits seguindo o padrão:
@@ -187,7 +187,7 @@ git commit -m "tipo: descrição do commit"
 4. Enviar branch para repositório remoto:
 
 ```bash
-git push origin dev/<seu-nome>
+git push origin feature/<nome-da-feature>
 ```
 
 5. Abrir Pull Request para `main`
@@ -217,7 +217,7 @@ git rebase origin/main
 # Resolver conflitos
 git add .
 git rebase --continue
-git push origin dev/<seu-nome> --force
+git push origin feature/<nome-da-feature> --force
 ```
 
 ---
@@ -242,8 +242,8 @@ git commit --amend -m "feat: descrição correta do commit"
 
 ```bash
 git fetch origin
-git rebase origin/dev/<seu-nome>
-git push origin dev/<seu-nome> --force
+git rebase origin/feature/<nome-da-feature>
+git push origin feature/<nome-da-feature> --force
 ```
 
 ---

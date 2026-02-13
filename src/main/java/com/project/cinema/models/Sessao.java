@@ -16,9 +16,9 @@ public class Sessao {
     private UUID id;
 
     @Temporal(TemporalType.DATE)
-    private Date date;
+    private Date data;
 
-    private String horario;
+    private String horarioFilme;
 
     @ManyToOne
     @JoinColumn(name = "sala_id")
@@ -38,19 +38,19 @@ public class Sessao {
     }
 
     public Date getDate() {
-        return date;
+        return data;
     }
 
     public void setDate(Date date) {
-        this.date = date;
+        this.data = date;
     }
 
     public String getHorario() {
-        return horario;
+        return horarioFilme;
     }
 
     public void setHorario(String horario) {
-        this.horario = horario;
+        this.horarioFilme = horario;
     }
 
     public Salas getSala() {
