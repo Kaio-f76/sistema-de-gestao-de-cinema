@@ -24,8 +24,9 @@ public class Sessao {
     @JoinColumn(name = "sala_id")
     private Salas sala;
 
-    @OneToMany(mappedBy = "ingresso", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Ingresso> ingresso = new ArrayList<>();
+    @OneToMany(mappedBy = "sessao", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Ingresso> ingressos = new ArrayList<>();
+
     // getters e setters
 
     public UUID getId() {
