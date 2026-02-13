@@ -1,6 +1,12 @@
 # Ignorar arquivo de script de setup
 setup_project.sh
 
+# Eclipse / IDE
+.metadata/
+
+# Arquivos de saída
+exit
+
 # Spring Boot / Maven
 HELP.md
 target/
