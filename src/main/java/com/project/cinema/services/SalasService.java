@@ -27,8 +27,9 @@ public class SalasService {
                 .orElseThrow(() -> new EntityNotFoundException("Sala não encontrada"));
     }
 
-    public Salas SalaByName(String nome){
-        return (Salas) salasRepository.findByNome(nome);
+    public Salas SalaByName(String nome) {
+        return salasRepository.findByNome(nome)
+                .orElseThrow(() -> new RuntimeException("Sala não encontrada: " + nome));
     }
 
     public Salas atualizar(UUID id, Salas novaSala){
