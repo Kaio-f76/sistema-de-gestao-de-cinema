@@ -5,6 +5,7 @@ import com.project.cinema.services.SalasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class SalasController {
     }
 
     @PostMapping
-    public ResponseEntity<Salas> salvar(@RequestBody Salas salas){
+    public ResponseEntity<Salas> salvar(@Validated @RequestBody Salas salas){
         return ResponseEntity.status(HttpStatus.CREATED).body(salasService.salvar(salas));
     }
 

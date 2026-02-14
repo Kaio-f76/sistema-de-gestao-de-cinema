@@ -17,7 +17,7 @@ public class Sessao {
 
     @Temporal(TemporalType.DATE)
     private Date data;
-
+    @Column
     private String horarioFilme;
 
     @ManyToOne

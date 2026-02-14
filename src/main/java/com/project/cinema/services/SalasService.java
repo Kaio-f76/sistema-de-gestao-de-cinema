@@ -43,6 +43,7 @@ public class SalasService {
     }
 
     public void excluir(UUID id){
-        salasRepository.deleteById(id);
+        Salas sala = salaById(id);
+        salasRepository.delete(sala);
     }
 }

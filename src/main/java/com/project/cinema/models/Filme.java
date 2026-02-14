@@ -12,9 +12,13 @@ public class Filme {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    @Column
     private String nome;
+    @Column
     private String descricao;
+    @Column
     private Double valorFilme;
+    @Column
     private String horario;
     @Temporal(TemporalType.DATE)
     private Date data;

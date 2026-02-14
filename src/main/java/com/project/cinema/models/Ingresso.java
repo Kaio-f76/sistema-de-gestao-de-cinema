@@ -17,9 +17,13 @@ public class Ingresso {
     @ManyToOne
     @JoinColumn(name = "sessao_id")
     private Sessao sessao;
+    @Column
     private int numAssento;
+    @Column
     private String tipoIngresso;
+    @Column
     private Double ValorI;
+    @Column
     private Double ValorDesconto;
     @ManyToOne
     @JoinColumn(name = "usuario_id")
