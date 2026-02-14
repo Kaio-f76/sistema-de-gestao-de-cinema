@@ -31,24 +31,26 @@ class IntegracaoEntreClassesTest {
         entityManager.persist(sala);
 
         // =========================
-        // CRIANDO SESSAO
-        // =========================
-        Sessao sessao = new Sessao();
-        sessao.setDate(new Date());
-        sessao.setHorario("20:00");
-        sessao.setSala(sala);
-        entityManager.persist(sessao);
-
-        // =========================
         // CRIANDO FILME
         // =========================
         Filme filme = new Filme();
         filme.setNome("Matrix");
         filme.setDescricao("Ficção Científica");
         filme.setValorFilme(30.0);
-        filme.setHorario("20:00");
-        filme.setDate(new Date());
+        filme.setGenero("Ficção Científica");
+        filme.setDiretor("Wachowski");
+        filme.setDuracao(136);
         entityManager.persist(filme);
+
+        // =========================
+        // CRIANDO SESSAO
+        // =========================
+        Sessao sessao = new Sessao();
+        sessao.setDate(new Date());
+        sessao.setHorario("20:00");
+        sessao.setSala(sala);
+        sessao.setFilme(filme);
+        entityManager.persist(sessao);
 
         // =========================
         // CRIANDO USUARIO
@@ -65,7 +67,6 @@ class IntegracaoEntreClassesTest {
         // CRIANDO INGRESSO
         // =========================
         Ingresso ingresso = new Ingresso();
-        ingresso.setFilme(filme);
         ingresso.setSessao(sessao);
         ingresso.setNumAssento(10);
         ingresso.setTipoIngresso("Inteira");
@@ -93,8 +94,8 @@ class IntegracaoEntreClassesTest {
         assertNotNull(ingressoSalvo.getSessao());
         assertEquals("20:00", ingressoSalvo.getSessao().getHorario());
 
-        assertNotNull(ingressoSalvo.getFilme());
-        assertEquals("Matrix", ingressoSalvo.getFilme().getNome());
+        assertNotNull(ingressoSalvo.getSessao().getFilme());
+        assertEquals("Matrix", ingressoSalvo.getSessao().getFilme().getNome());
 
         assertEquals(100L, ingressoSalvo.getUsuario().getSaldo());
     }
