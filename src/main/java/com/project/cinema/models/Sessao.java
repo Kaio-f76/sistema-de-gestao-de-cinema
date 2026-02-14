@@ -21,6 +21,10 @@ public class Sessao {
     private String horarioFilme;
 
     @ManyToOne
+    @JoinColumn(name = "filme_id")
+    private Filme filme;
+
+    @ManyToOne
     @JoinColumn(name = "sala_id")
     private Sala sala;
 
@@ -53,11 +57,27 @@ public class Sessao {
         this.horarioFilme = horario;
     }
 
+    public Filme getFilme() {
+        return filme;
+    }
+
+    public void setFilme(Filme filme) {
+        this.filme = filme;
+    }
+
     public Sala getSala() {
         return sala;
     }
 
     public void setSala(Sala sala) {
         this.sala = sala;
+    }
+
+    public List<Ingresso> getIngressos() {
+        return ingressos;
+    }
+
+    public void setIngressos(List<Ingresso> ingressos) {
+        this.ingressos = ingressos;
     }
 }
