@@ -1,5 +1,6 @@
 # Ignorar arquivo de script de setup
 setup_project.sh
+script.sh
 
 # Eclipse / IDE
 .metadata/
