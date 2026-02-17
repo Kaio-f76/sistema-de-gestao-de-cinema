@@ -22,16 +22,21 @@ public class UsuarioService {
     }
 
     public Usuario criarConta(Usuario usuario) {
+        // Validação dos campos obrigatórios
         if (usuario.getEmail() == null || usuario.getSenha() == null || usuario.getNome() == null) {
             throw new DadosInvalidosException("Dados obrigatórios não informados.");
         }
 
+        // Verifica se já existe usuário com o mesmo e-mail
         Optional<Usuario> existente = usuarioRepository.findByEmail(usuario.getEmail());
         if (existente.isPresent()) {
             throw new EmailJaCadastradoException("E-mail já cadastrado.");
         }
 
+        // Criptografa a senha
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+
+        // Define regras de negócio: todo novo usuário é CLIENTE com saldo inicial 0
         usuario.setTipoUsuario(TipoUsuario.CLIENTE);
         usuario.setSaldo(0L);
 
