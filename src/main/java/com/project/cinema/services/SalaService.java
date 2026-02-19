@@ -29,10 +29,13 @@ public class SalaService {
 
     public Sala salvar(Sala sala, UUID usuarioId){
         //validação
+        if (usuarioId == null) {
+            throw new DadosInvalidosException("Usuário não informado.");
+        }
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         if(usuario.getTipoUsuario()!= TipoUsuario.ADMINISTRADOR){
-            throw new DadosInvalidosException("Usuario invalid.");
+            throw new DadosInvalidosException("Usuario invalido.");
         }
         if(sala.getNome() == null || sala.getNome().isEmpty()){
             throw new DadosInvalidosException("Dados obrigatórios não informados.");
@@ -56,29 +59,29 @@ public class SalaService {
     }
 
     public Sala atualizar(UUID id, Sala novaSala, UUID usuarioId){
+
+        if (usuarioId == null) {
+            throw new DadosInvalidosException("Usuário não informado.");
+        }
+
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
-        if(usuario.getTipoUsuario()!= TipoUsuario.ADMINISTRADOR){
+
+        if(usuario.getTipoUsuario() != TipoUsuario.ADMINISTRADOR){
             throw new DadosInvalidosException("Usuario invalid.");
         }
+
         if(novaSala.getNome() == null || novaSala.getNome().isEmpty()){
             throw new DadosInvalidosException("Dados obrigatórios não informados.");
         }
-        if (salaRepository.findByNome(novaSala.getNome()).isPresent()) {
-            throw new DadosInvalidosException("Esse nome de sala já existe.");
-        }
-        //criar um if baseado em sessão
+
         Sala salaExistente = salaById(id);
 
         salaExistente.setNome(novaSala.getNome());
         salaExistente.setNumAssentos(novaSala.getNumAssentos());
-        salaExistente.setSessoes(novaSala.getSessoes());
-
-        // atualizar outros campos se necessário
 
         return salaRepository.save(salaExistente);
     }
-
     public void excluir(UUID id, UUID usuarioId){
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));

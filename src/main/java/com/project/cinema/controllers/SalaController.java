@@ -38,19 +38,19 @@ public class SalaController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<Sala> salvar(@Validated @RequestBody Sala salas, UUID usuarioId){
+    public ResponseEntity<Sala> salvar(@Validated @RequestBody Sala salas, @RequestParam UUID usuarioId){
         return ResponseEntity.status(HttpStatus.CREATED).body(salaService.salvar(salas, usuarioId));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/{usuarioId}")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<Sala> atualizar(@PathVariable UUID id, @RequestBody Sala salas, UUID usuarioId){
+    public ResponseEntity<Sala> atualizar(@PathVariable UUID id, @RequestBody Sala salas, @PathVariable UUID usuarioId){
         return ResponseEntity.ok(salaService.atualizar(id, salas, usuarioId));
     }
 
-    @DeleteMapping("/{id}")
-
-    public ResponseEntity<Void> excluir(@PathVariable UUID id, UUID usuarioId){
+    @DeleteMapping("/{id}/{usuarioId}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> excluir(@PathVariable UUID id, @PathVariable UUID usuarioId){
         salaService.excluir(id, usuarioId);
         return ResponseEntity.noContent().build();
     }
