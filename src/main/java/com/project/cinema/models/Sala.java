@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "salas")
-public class Salas {
+public class Sala {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -20,6 +20,13 @@ public class Salas {
     @OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Sessao> sessoes = new ArrayList<>();
 
+    public Sala() {}
+
+    public Sala(String nome, Integer numAssentos, List<Sessao> sessoes) {
+        this.nome = nome;
+        this.numAssentos = numAssentos;
+        this.sessoes = sessoes;
+    }
     public UUID getId() {
         return id;
     }

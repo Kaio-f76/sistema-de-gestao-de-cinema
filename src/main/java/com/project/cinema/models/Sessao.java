@@ -22,7 +22,7 @@ public class Sessao {
 
     @ManyToOne
     @JoinColumn(name = "sala_id")
-    private Salas sala;
+    private Sala sala;
 
     @OneToMany(mappedBy = "sessao", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ingresso> ingressos = new ArrayList<>();
@@ -53,11 +53,11 @@ public class Sessao {
         this.horarioFilme = horario;
     }
 
-    public Salas getSala() {
+    public Sala getSala() {
         return sala;
     }
 
-    public void setSala(Salas sala) {
+    public void setSala(Sala sala) {
         this.sala = sala;
     }
 }
