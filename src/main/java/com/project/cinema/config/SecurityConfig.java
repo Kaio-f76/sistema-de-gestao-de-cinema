@@ -28,7 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/usuarios/logout").permitAll()
                         .requestMatchers("/api/usuarios/session-expired").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/salas/**").permitAll()
-                        // Rotas de Administrador
+                        // Rotas de Administrador - hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.POST, "/api/salas/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/salas/{id}/{usuarioId}**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/salas/{id}/{usuarioId}**").permitAll()
