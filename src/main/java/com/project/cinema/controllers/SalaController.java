@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
-@RequestMapping("/salas")
+@RequestMapping("/api/salas")
 public class SalaController {
 
     private final SalaService salaService;
