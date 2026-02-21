@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)
                         .and()
-                        .invalidSessionUrl("/api/usuarios/session-expired")
+                        //.invalidSessionUrl("/api/usuarios/session-expired")
                 );
 
         return http.build();
