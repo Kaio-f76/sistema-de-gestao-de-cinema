@@ -16,13 +16,13 @@ public class Sessao {
     private UUID id;
 
     @Temporal(TemporalType.DATE)
-    private Date date;
+    private Date data;
 
-    private String horario;
+    private String horarioFilme;
 
     @ManyToOne
     @JoinColumn(name = "sala_id")
-    private Salas sala;
+    private Sala sala;
 
     @OneToMany(mappedBy = "sessao", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ingresso> ingressos = new ArrayList<>();
@@ -38,26 +38,26 @@ public class Sessao {
     }
 
     public Date getDate() {
-        return date;
+        return data;
     }
 
     public void setDate(Date date) {
-        this.date = date;
+        this.data = date;
     }
 
     public String getHorario() {
-        return horario;
+        return horarioFilme;
     }
 
     public void setHorario(String horario) {
-        this.horario = horario;
+        this.horarioFilme = horario;
     }
 
-    public Salas getSala() {
+    public Sala getSala() {
         return sala;
     }
 
-    public void setSala(Salas sala) {
+    public void setSala(Sala sala) {
         this.sala = sala;
     }
 }
