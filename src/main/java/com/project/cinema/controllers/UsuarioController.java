@@ -26,10 +26,10 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Usuario> login(@RequestParam String email, @RequestParam String senha, HttpSession session) {
-        Usuario usuario = usuarioService.login(email, senha);
-        session.setAttribute("usuario", usuario);
-        return ResponseEntity.ok(usuario);
+    public ResponseEntity<Usuario> login(@RequestBody Usuario usuario, HttpSession session) {
+        Usuario usuarioLogado = usuarioService.login(usuario.getEmail(), usuario.getSenha());
+        session.setAttribute("usuario", usuarioLogado);
+        return ResponseEntity.ok(usuarioLogado);
     }
 
     @PostMapping("/logout")
