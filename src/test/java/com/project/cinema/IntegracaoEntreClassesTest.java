@@ -25,7 +25,7 @@ class IntegracaoEntreClassesTest {
         // =========================
         // CRIANDO SALA
         // =========================
-        Salas sala = new Salas();
+        Sala sala = new Sala();
         sala.setNome("Sala 1");
         sala.setNumAssentos(100);
         entityManager.persist(sala);
