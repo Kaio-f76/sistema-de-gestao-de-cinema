@@ -2,6 +2,8 @@ package com.project.cinema.services;
 
 import com.project.cinema.exceptions.EmailJaCadastradoException;
 import com.project.cinema.exceptions.DadosInvalidosException;
+import com.project.cinema.exceptions.EmailNaoEncontradoException; 
+import com.project.cinema.exceptions.SenhaIncorretaException; 
 import com.project.cinema.models.TipoUsuario;
 import com.project.cinema.models.Usuario;
 import com.project.cinema.repositories.UsuarioRepository;
@@ -45,10 +47,10 @@ public class UsuarioService {
 
     public Usuario login(String email, String senha) {
         Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new DadosInvalidosException("Usuário não encontrado."));
+                .orElseThrow(() -> new EmailNaoEncontradoException("Email incorreto."));
 
         if (!passwordEncoder.matches(senha, usuario.getSenha())) {
-            throw new DadosInvalidosException("Senha inválida.");
+            throw new SenhaIncorretaException("Senha incorreta.");
         }
 
         return usuario;
