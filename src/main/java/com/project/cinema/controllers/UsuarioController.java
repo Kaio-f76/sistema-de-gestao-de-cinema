@@ -3,9 +3,13 @@ package com.project.cinema.controllers;
 import com.project.cinema.models.Usuario;
 import com.project.cinema.services.UsuarioService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.project.cinema.exceptions.EmailJaCadastradoException;
+import com.project.cinema.exceptions.DadosInvalidosException;
+import com.project.cinema.exceptions.EmailNaoEncontradoException; 
+import com.project.cinema.exceptions.SenhaIncorretaException; 
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -19,18 +23,31 @@ public class UsuarioController {
     }
 
     @PostMapping("/cadastro")
-    public ResponseEntity<Usuario> criarConta(@RequestBody Usuario usuario, HttpSession session) {
-        Usuario novoUsuario = usuarioService.criarConta(usuario);
-        session.setAttribute("usuario", novoUsuario);
-        return ResponseEntity.ok(novoUsuario);
+    public ResponseEntity<?> criarConta(@RequestBody Usuario usuario, HttpSession session) {
+        try {
+            Usuario novoUsuario = usuarioService.criarConta(usuario);
+            session.setAttribute("usuario", novoUsuario);
+            return ResponseEntity.ok(novoUsuario);
+        } catch (EmailJaCadastradoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email já cadastrado.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao cadastrar.");
+        }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Usuario> login(@RequestParam String email, @RequestParam String senha, HttpSession session) {
-        Usuario usuario = usuarioService.login(email, senha);
-        session.setAttribute("usuario", usuario);
-        return ResponseEntity.ok(usuario);
+    public ResponseEntity<?> login(@RequestBody Usuario usuario, HttpSession session) {
+        try {
+            Usuario usuarioLogado = usuarioService.login(usuario.getEmail(), usuario.getSenha());
+            session.setAttribute("usuario", usuarioLogado);
+            return ResponseEntity.ok(usuarioLogado);
+        } catch (EmailNaoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email incorreto.");
+        } catch (SenhaIncorretaException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Senha incorreta.");
+        }
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpSession session) {
