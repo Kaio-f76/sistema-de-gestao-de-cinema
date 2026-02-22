@@ -1,21 +1,27 @@
 package com.project.cinema.controllers;
 
+import com.project.cinema.exceptions.DadosInvalidosException;
 import com.project.cinema.models.Filme;
 import com.project.cinema.services.FilmeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
-@RequestMapping("/filmes")
+@RequestMapping("/api/filmes")
 public class FilmeController {
 
-    @Autowired
-    private FilmeService filmeService;
+    private final FilmeService filmeService;
+    
+    public FilmeController(FilmeService filmeService) {
+        this.filmeService = filmeService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Filme>> listar() {
@@ -38,18 +44,33 @@ public class FilmeController {
     }
 
     @PostMapping
-    public ResponseEntity<Filme> salvar(@RequestBody Filme filme) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(filmeService.salvar(filme));
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> salvar(@Validated @RequestBody Filme filme) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(filmeService.salvar(filme));
+        } catch (DadosInvalidosException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Filme> atualizar(@PathVariable UUID id, @RequestBody Filme filme) {
-        return ResponseEntity.ok(filmeService.atualizar(id, filme));
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> atualizar(@PathVariable UUID id, @Validated @RequestBody Filme filme) {
+        try {
+            return ResponseEntity.ok(filmeService.atualizar(id, filme));
+        } catch (DadosInvalidosException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
-        filmeService.excluir(id);
-        return ResponseEntity.noContent().build();
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> excluir(@PathVariable UUID id) {
+        try {
+            filmeService.excluir(id);
+            return ResponseEntity.noContent().build();
+        } catch (DadosInvalidosException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

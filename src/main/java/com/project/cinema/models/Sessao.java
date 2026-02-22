@@ -1,6 +1,7 @@
 package com.project.cinema.models;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,6 +23,7 @@ public class Sessao {
 
     @ManyToOne
     @JoinColumn(name = "filme_id")
+    @JsonManagedReference
     private Filme filme;
 
     @ManyToOne

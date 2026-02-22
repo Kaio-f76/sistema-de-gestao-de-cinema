@@ -1,21 +1,27 @@
 package com.project.cinema.controllers;
 
+import com.project.cinema.exceptions.DadosInvalidosException;
 import com.project.cinema.models.Sessao;
 import com.project.cinema.services.SessaoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
-@RequestMapping("/sessoes")
+@RequestMapping("/api/sessoes")
 public class SessaoController {
 
-    @Autowired
-    private SessaoService sessaoService;
+    private final SessaoService sessaoService;
+    
+    public SessaoController(SessaoService sessaoService) {
+        this.sessaoService = sessaoService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Sessao>> listar() {
@@ -38,18 +44,33 @@ public class SessaoController {
     }
 
     @PostMapping
-    public ResponseEntity<Sessao> salvar(@RequestBody Sessao sessao) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(sessaoService.salvar(sessao));
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> salvar(@Validated @RequestBody Sessao sessao) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(sessaoService.salvar(sessao));
+        } catch (DadosInvalidosException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Sessao> atualizar(@PathVariable UUID id, @RequestBody Sessao sessao) {
-        return ResponseEntity.ok(sessaoService.atualizar(id, sessao));
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> atualizar(@PathVariable UUID id, @Validated @RequestBody Sessao sessao) {
+        try {
+            return ResponseEntity.ok(sessaoService.atualizar(id, sessao));
+        } catch (DadosInvalidosException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
-        sessaoService.excluir(id);
-        return ResponseEntity.noContent().build();
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> excluir(@PathVariable UUID id) {
+        try {
+            sessaoService.excluir(id);
+            return ResponseEntity.noContent().build();
+        } catch (DadosInvalidosException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

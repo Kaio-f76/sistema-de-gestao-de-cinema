@@ -1,6 +1,7 @@
 package com.project.cinema.models;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,7 +27,8 @@ public class Filme {
     private Integer duracao; // duração em minutos
     private Double valorFilme;
 
-    @OneToMany(mappedBy = "filme", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "filme")
+    @JsonBackReference
     private List<Sessao> sessoes = new ArrayList<>();
 
     //getters seters
