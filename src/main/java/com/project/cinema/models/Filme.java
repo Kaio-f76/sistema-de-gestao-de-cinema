@@ -16,8 +16,12 @@ public class Filme {
     private String descricao;
     private Double valorFilme;
     private String horario;
+    private String resumo;
     @Temporal(TemporalType.DATE)
     private Date data;
+    private String genero;
+    private String imagem;
+    private String classificacaoIndicativa;
 
     //getters seters
 
@@ -61,11 +65,26 @@ public class Filme {
         this.horario = horario;
     }
 
-    public Date getDate() {
+    public Date getData() {
         return data;
     }
 
-    public void setDate(Date date) {
-        this.data = date;
+    public void setData(Date data) {
+        this.data = data;
     }
+
+    public String getGenero() { return genero ; }
+
+    public void setGenero(String genero) { this.genero = genero; }
+
+    public String getResumo() { return resumo ; }
+    public void setResumo(String resumo) { this.resumo = resumo; }
+
+    public String getImagem() { return imagem; }
+
+    public void setImagem(String imagem) { this.imagem = imagem; }
+
+    public String getClassificacaoIndicativa() { return classificacaoIndicativa; }
+
+    public void setClassificacaoIndicativa(String classificacaoIndicativa) { this.classificacaoIndicativa = classificacaoIndicativa;}
 }

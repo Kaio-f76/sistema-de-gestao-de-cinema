@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import jakarta.persistence.EntityManager;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.Date;
 import java.util.List;
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class IntegracaoEntreClassesTest {
 
     @Autowired
-    private EntityManager entityManager;
+    private TestEntityManager entityManager;
 
     @Test
     void devePersistirTodasEntidadesERelacionamentos() {
@@ -47,7 +48,11 @@ class IntegracaoEntreClassesTest {
         filme.setDescricao("Ficção Científica");
         filme.setValorFilme(30.0);
         filme.setHorario("20:00");
-        filme.setDate(new Date());
+        filme.setData(new Date());
+        filme.setGenero("Ação");
+        filme.setResumo("caçando demonios ao anoitecer");
+        filme.setClassificacaoIndicativa("Maiores de 16 anos");
+        filme.setImagem("matrix.jpg");
         entityManager.persist(filme);
 
         // =========================
