@@ -11,12 +11,11 @@ public class Ingresso {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @ManyToOne
-    @JoinColumn(name = "filme_id")
-    private Filme filme;
+    
     @ManyToOne
     @JoinColumn(name = "sessao_id")
     private Sessao sessao;
+    
     private int numAssento;
     private String tipoIngresso;
     private Double ValorI;
@@ -41,14 +40,6 @@ public class Ingresso {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public Filme getFilme() {
-        return filme;
-    }
-
-    public void setFilme(Filme filme) {
-        this.filme = filme;
     }
 
     public Sessao getSessao() {

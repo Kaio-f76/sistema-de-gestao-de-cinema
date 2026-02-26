@@ -1,8 +1,11 @@
 package com.project.cinema.models;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -14,10 +17,19 @@ public class Filme {
     private UUID id;
     private String nome;
     private String descricao;
-    private Double valorFilme;
-    private String horario;
     @Temporal(TemporalType.DATE)
-    private Date data;
+    private Date dataLancamento;
+    private String genero;
+    private String diretor;
+    private String elenco;
+    private String classificacao;
+    private String distribuidor;
+    private Integer duracao; // duração em minutos
+    private Double valorFilme;
+
+    @OneToMany(mappedBy = "filme")
+    @JsonBackReference
+    private List<Sessao> sessoes = new ArrayList<>();
 
     //getters seters
 
@@ -45,6 +57,62 @@ public class Filme {
         this.descricao = descricao;
     }
 
+    public Date getDataLancamento() {
+        return dataLancamento;
+    }
+
+    public void setDataLancamento(Date dataLancamento) {
+        this.dataLancamento = dataLancamento;
+    }
+
+    public String getGenero() {
+        return genero;
+    }
+
+    public void setGenero(String genero) {
+        this.genero = genero;
+    }
+
+    public String getDiretor() {
+        return diretor;
+    }
+
+    public void setDiretor(String diretor) {
+        this.diretor = diretor;
+    }
+
+    public String getElenco() {
+        return elenco;
+    }
+
+    public void setElenco(String elenco) {
+        this.elenco = elenco;
+    }
+
+    public String getClassificacao() {
+        return classificacao;
+    }
+
+    public void setClassificacao(String classificacao) {
+        this.classificacao = classificacao;
+    }
+
+    public String getDistribuidor() {
+        return distribuidor;
+    }
+
+    public void setDistribuidor(String distribuidor) {
+        this.distribuidor = distribuidor;
+    }
+
+    public Integer getDuracao() {
+        return duracao;
+    }
+
+    public void setDuracao(Integer duracao) {
+        this.duracao = duracao;
+    }
+
     public Double getValorFilme() {
         return valorFilme;
     }
@@ -53,19 +121,11 @@ public class Filme {
         this.valorFilme = valorFilme;
     }
 
-    public String getHorario() {
-        return horario;
+    public List<Sessao> getSessoes() {
+        return sessoes;
     }
 
-    public void setHorario(String horario) {
-        this.horario = horario;
-    }
-
-    public Date getDate() {
-        return data;
-    }
-
-    public void setDate(Date date) {
-        this.data = date;
+    public void setSessoes(List<Sessao> sessoes) {
+        this.sessoes = sessoes;
     }
 }
