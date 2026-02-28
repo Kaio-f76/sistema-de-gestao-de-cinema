@@ -62,7 +62,7 @@ public class SessaoService {
         sessao.setSala(sala);
 
         // Validação 3: Verificar se data e horário foram fornecidos
-        if (sessao.getDate() == null || sessao.getHorario() == null || sessao.getHorario().trim().isEmpty()) {
+        if (sessao.getData() == null || sessao.getHorarioFilme() == null || sessao.getHorarioFilme().trim().isEmpty()) {
             throw new DadosInvalidosException("Data e horário da sessão são obrigatórios");
         }
 
@@ -87,12 +87,12 @@ public class SessaoService {
             sessaoExistente.setSala(sala);
         }
 
-        if (novaSessao.getDate() != null) {
-            sessaoExistente.setDate(novaSessao.getDate());
+        if (novaSessao.getData() != null) {
+            sessaoExistente.setData(novaSessao.getData());
         }
         
-        if (novaSessao.getHorario() != null && !novaSessao.getHorario().trim().isEmpty()) {
-            sessaoExistente.setHorario(novaSessao.getHorario());
+        if (novaSessao.getHorarioFilme() != null && !novaSessao.getHorarioFilme().trim().isEmpty()) {
+            sessaoExistente.setHorarioFilme(novaSessao.getHorarioFilme());
         }
 
         // Validar conflito de horários novamente
@@ -125,7 +125,7 @@ public class SessaoService {
 
         // Filtrar por data em memória
         List<Sessao> sessoesNoDia = sessoesNaSala.stream()
-                .filter(s -> s.getDate().equals(novaSessao.getDate()))
+                .filter(s -> s.getData().equals(novaSessao.getData()))
                 .collect(Collectors.toList());
 
         for (Sessao sessaoExistente : sessoesNoDia) {
@@ -138,8 +138,8 @@ public class SessaoService {
             if (horariosConflitam(novaSessao, sessaoExistente)) {
                 throw new DadosInvalidosException(
                         "Conflito de horário! A sala " + novaSessao.getSala().getNome() +
-                                " já possui uma sessão agendada para " + sessaoExistente.getHorario() +
-                                " no dia " + new SimpleDateFormat("dd/MM/yyyy").format(novaSessao.getDate())
+                                " já possui uma sessão agendada para " + sessaoExistente.getHorarioFilme() +
+                                " no dia " + new SimpleDateFormat("dd/MM/yyyy").format(novaSessao.getData())
                 );
             }
         }
@@ -156,8 +156,8 @@ public class SessaoService {
     private boolean horariosConflitam(Sessao sessao1, Sessao sessao2) {
         try {
             // Parse dos horários
-            LocalTime inicio1 = LocalTime.parse(sessao1.getHorario());
-            LocalTime inicio2 = LocalTime.parse(sessao2.getHorario());
+            LocalTime inicio1 = LocalTime.parse(sessao1.getHorarioFilme());
+            LocalTime inicio2 = LocalTime.parse(sessao2.getHorarioFilme());
             
             // Calcular duração em minutos (padrão 120 se não especificado)
             int duracao1 = sessao1.getFilme().getDuracao() != null ? sessao1.getFilme().getDuracao() : 120;

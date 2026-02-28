@@ -43,7 +43,7 @@ class IntegracaoEntreClassesTest {
         assertEquals("Carlos", ingressoSalvo.getUsuario().getNome());
 
         assertNotNull(ingressoSalvo.getSessao());
-        assertEquals("20:00", ingressoSalvo.getSessao().getHorario());
+        assertEquals("20:00", ingressoSalvo.getSessao().getHorarioFilme());
 
         assertNotNull(ingressoSalvo.getSessao().getFilme());
         assertEquals("Matrix", ingressoSalvo.getSessao().getFilme().getNome());
@@ -73,8 +73,8 @@ class IntegracaoEntreClassesTest {
 
     private Sessao criarSessao(Sala sala, Filme filme) {
         Sessao sessao = new Sessao();
-        sessao.setDate(new Date());
-        sessao.setHorario("20:00");
+        sessao.setData(new Date());
+        sessao.setHorarioFilme("20:00");
         sessao.setSala(sala);
         sessao.setFilme(filme);
         entityManager.persist(sessao);

@@ -95,7 +95,7 @@ class SessaoServiceTest {
     void deveLancarExcecaoAoSalvarSessaoSemData() {
         stubFilmeESala();
         
-        sessao.setDate(null);
+        sessao.setData(null);
         assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao),
                 "Data");
     }
@@ -104,7 +104,7 @@ class SessaoServiceTest {
     void deveLancarExcecaoAoSalvarSessaoSemHorario() {
         stubFilmeESala();
         
-        sessao.setHorario(null);
+        sessao.setHorarioFilme(null);
         assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao),
                 "horário");
     }
@@ -149,7 +149,7 @@ class SessaoServiceTest {
     @Test
     void deveAtualizarSessaoComHorarioValido() {
         Sessao sessaoAtualizada = new Sessao();
-        sessaoAtualizada.setHorario("16:30");
+        sessaoAtualizada.setHorarioFilme("16:30");
 
         when(sessaoRepository.findById(id)).thenReturn(Optional.of(sessao));
         when(sessaoRepository.findBySala(sala)).thenReturn(new ArrayList<>());
@@ -252,8 +252,8 @@ class SessaoServiceTest {
         sessao.setId(UUID.randomUUID());
         sessao.setFilme(filme);
         sessao.setSala(sala);
-        sessao.setDate(date);
-        sessao.setHorario(horario);
+        sessao.setData(date);
+        sessao.setHorarioFilme(horario);
         return sessao;
     }
 

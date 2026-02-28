@@ -1,5 +1,6 @@
 package com.project.cinema.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 //import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -31,6 +32,7 @@ public class Usuario {
     private Long saldo;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("usuario-ingressos")
     private List<Ingresso> ingressos;
 
 

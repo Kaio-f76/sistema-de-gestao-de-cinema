@@ -1,5 +1,6 @@
 package com.project.cinema.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.UUID;
@@ -14,6 +15,7 @@ public class Ingresso {
     
     @ManyToOne
     @JoinColumn(name = "sessao_id")
+    @JsonBackReference("sessao-ingressos")
     private Sessao sessao;
     
     private int numAssento;
@@ -22,6 +24,7 @@ public class Ingresso {
     private Double ValorDesconto;
     @ManyToOne
     @JoinColumn(name = "usuario_id")
+    @JsonBackReference("usuario-ingressos")
     private Usuario usuario;
 
     //geters seters

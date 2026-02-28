@@ -1,7 +1,8 @@
 package com.project.cinema.models;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,14 +24,16 @@ public class Sessao {
 
     @ManyToOne
     @JoinColumn(name = "filme_id")
-    @JsonManagedReference
+    @JsonBackReference("filme-sessoes")
     private Filme filme;
 
     @ManyToOne
     @JoinColumn(name = "sala_id")
+    @JsonBackReference("sala-sessoes")
     private Sala sala;
 
     @OneToMany(mappedBy = "sessao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("sessao-ingressos")
     private List<Ingresso> ingressos = new ArrayList<>();
 
     // getters e setters
@@ -43,20 +46,20 @@ public class Sessao {
         this.id = id;
     }
 
-    public Date getDate() {
+    public Date getData() {
         return data;
     }
 
-    public void setDate(Date date) {
-        this.data = date;
+    public void setData(Date data) {
+        this.data = data;
     }
 
-    public String getHorario() {
+    public String getHorarioFilme() {
         return horarioFilme;
     }
 
-    public void setHorario(String horario) {
-        this.horarioFilme = horario;
+    public void setHorarioFilme(String horarioFilme) {
+        this.horarioFilme = horarioFilme;
     }
 
     public Filme getFilme() {

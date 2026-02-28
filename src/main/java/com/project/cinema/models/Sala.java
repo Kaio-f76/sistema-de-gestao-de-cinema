@@ -1,5 +1,6 @@
 package com.project.cinema.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class Sala {
     private Integer numAssentos;
 
     @OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("sala-sessoes")
     private List<Sessao> sessoes = new ArrayList<>();
 
     public Sala() {}
