@@ -4,9 +4,11 @@ import com.project.cinema.exceptions.DadosInvalidosException;
 import com.project.cinema.models.Filme;
 import com.project.cinema.models.Sala;
 import com.project.cinema.models.Sessao;
+import com.project.cinema.repositories.AssentoSessaoRepository;
 import com.project.cinema.repositories.SessaoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
@@ -20,11 +22,19 @@ public class SessaoService {
     private final SessaoRepository sessaoRepository;
     private final FilmeService filmeService;
     private final SalaService salaService;
+    private final AssentoService assentoService;
+    private final AssentoSessaoRepository assentoSessaoRepository;
     
-    public SessaoService(SessaoRepository sessaoRepository, FilmeService filmeService, SalaService salaService) {
+    public SessaoService(SessaoRepository sessaoRepository,
+                         FilmeService filmeService,
+                         SalaService salaService,
+                         AssentoService assentoService,
+                         AssentoSessaoRepository assentoSessaoRepository) {
         this.sessaoRepository = sessaoRepository;
         this.filmeService = filmeService;
         this.salaService = salaService;
+        this.assentoService = assentoService;
+        this.assentoSessaoRepository = assentoSessaoRepository;
     }
 
     public List<Sessao> listar() {
@@ -46,6 +56,7 @@ public class SessaoService {
         return sessaoRepository.findBySala(sala);
     }
 
+    @Transactional
     public Sessao salvar(Sessao sessao) {
         // Validação 1: Verificar se filme existe
         if (sessao.getFilme() == null || sessao.getFilme().getId() == null) {
@@ -69,11 +80,15 @@ public class SessaoService {
         // Validação 4: Verificar conflito de horários
         validarConflitoHorario(sessao);
 
-        return sessaoRepository.save(sessao);
+        Sessao sessaoSalva = sessaoRepository.save(sessao);
+        assentoService.inicializarAssentosParaSessao(sessaoSalva);
+        return sessaoSalva;
     }
 
+    @Transactional
     public Sessao atualizar(UUID id, Sessao novaSessao) {
         Sessao sessaoExistente = buscarPorId(id);
+        UUID salaAnteriorId = sessaoExistente.getSala() != null ? sessaoExistente.getSala().getId() : null;
 
         // Atualizar filme se fornecido
         if (novaSessao.getFilme() != null && novaSessao.getFilme().getId() != null) {
@@ -98,16 +113,23 @@ public class SessaoService {
         // Validar conflito de horários novamente
         validarConflitoHorario(sessaoExistente);
 
-        return sessaoRepository.save(sessaoExistente);
+        Sessao sessaoAtualizada = sessaoRepository.save(sessaoExistente);
+
+        if (salaAnteriorId != null && !salaAnteriorId.equals(sessaoAtualizada.getSala().getId())) {
+            assentoSessaoRepository.deleteBySessaoId(sessaoAtualizada.getId());
+            assentoService.inicializarAssentosParaSessao(sessaoAtualizada);
+        }
+
+        return sessaoAtualizada;
     }
 
     public void excluir(UUID id) {
         Sessao sessao = buscarPorId(id);
 
-        // Validação CRÍTICA: Verificar se há ingressos vendidos
+        // Validação CRÍTICA: Verificar se há ingressos emitidos
         if (!sessao.getIngressos().isEmpty()) {
             throw new DadosInvalidosException("Não é possível cancelar a sessão. Existem " +
-                    sessao.getIngressos().size() + " ingresso(s) vendido(s) para esta sessão. " +
+                    sessao.getIngressos().size() + " ingresso(s) emitido(s) para esta sessão. " +
                     "Realize o estorno aos clientes antes de cancelar.");
         }
 
@@ -176,3 +198,4 @@ public class SessaoService {
         }
     }
 }
+

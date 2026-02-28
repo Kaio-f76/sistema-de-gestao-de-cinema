@@ -22,6 +22,9 @@ public class Sala {
     @JsonManagedReference("sala-sessoes")
     private List<Sessao> sessoes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Assento> assentos = new ArrayList<>();
+
     public Sala() {}
 
     public Sala(String nome, Integer numAssentos, List<Sessao> sessoes) {
@@ -45,6 +48,10 @@ public class Sala {
         return sessoes;
     }
 
+    public List<Assento> getAssentos() {
+        return assentos;
+    }
+
     public void setId(UUID id) {
         this.id = id;
     }
@@ -59,6 +66,10 @@ public class Sala {
 
     public void setSessoes(List<Sessao> sessoes) {
         this.sessoes = sessoes;
+    }
+
+    public void setAssentos(List<Assento> assentos) {
+        this.assentos = assentos;
     }
 // getters e setters
 }

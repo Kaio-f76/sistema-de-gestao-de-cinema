@@ -1,6 +1,7 @@
 package com.project.cinema.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="sessao")
+@Table(name = "sessao")
 public class Sessao {
 
     @Id
@@ -36,7 +37,9 @@ public class Sessao {
     @JsonManagedReference("sessao-ingressos")
     private List<Ingresso> ingressos = new ArrayList<>();
 
-    // getters e setters
+    @OneToMany(mappedBy = "sessao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<AssentoSessao> assentosSessao = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -84,5 +87,13 @@ public class Sessao {
 
     public void setIngressos(List<Ingresso> ingressos) {
         this.ingressos = ingressos;
+    }
+
+    public List<AssentoSessao> getAssentosSessao() {
+        return assentosSessao;
+    }
+
+    public void setAssentosSessao(List<AssentoSessao> assentosSessao) {
+        this.assentosSessao = assentosSessao;
     }
 }

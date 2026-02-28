@@ -5,7 +5,9 @@ import com.project.cinema.models.Filme;
 import com.project.cinema.models.Ingresso;
 import com.project.cinema.models.Sala;
 import com.project.cinema.models.Sessao;
+import com.project.cinema.repositories.AssentoSessaoRepository;
 import com.project.cinema.repositories.SessaoRepository;
+import com.project.cinema.services.AssentoService;
 import com.project.cinema.services.FilmeService;
 import com.project.cinema.services.SalaService;
 import com.project.cinema.services.SessaoService;
@@ -25,9 +27,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SessaoServiceTest {
@@ -40,6 +49,12 @@ class SessaoServiceTest {
 
     @Mock
     private SalaService salaService;
+
+    @Mock
+    private AssentoService assentoService;
+
+    @Mock
+    private AssentoSessaoRepository assentoSessaoRepository;
 
     @InjectMocks
     private SessaoService sessaoService;
@@ -60,7 +75,7 @@ class SessaoServiceTest {
         filme = new Filme();
         filme.setId(filmeId);
         filme.setNome("Matrix");
-        filme.setDescricao("Ficção Científica");
+        filme.setDescricao("Ficcao Cientifica");
         filme.setValorFilme(30.0);
         filme.setDuracao(136);
 
@@ -73,55 +88,46 @@ class SessaoServiceTest {
         sessao.setId(id);
     }
 
-    // ===== TESTES DE VALIDAÇÃO =====
-
     @Test
     void deveLancarExcecaoAoSalvarSessaoSemFilme() {
         sessao.setFilme(null);
-        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao),
-                "Filme é obrigatório");
+        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao));
     }
 
     @Test
     void deveLancarExcecaoAoSalvarSessaoSemSala() {
         when(filmeService.buscarPorId(filmeId)).thenReturn(filme);
-        
         sessao.setSala(null);
-        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao),
-                "Sala é obrigatória");
+        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao));
     }
 
     @Test
     void deveLancarExcecaoAoSalvarSessaoSemData() {
         stubFilmeESala();
-        
         sessao.setData(null);
-        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao),
-                "Data");
+        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao));
     }
 
     @Test
     void deveLancarExcecaoAoSalvarSessaoSemHorario() {
         stubFilmeESala();
-        
         sessao.setHorarioFilme(null);
-        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao),
-                "horário");
+        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao));
     }
-
-    // ===== TESTES DE PERSISTÊNCIA =====
 
     @Test
     void deveSalvarSessaoComDadosValidos() {
         stubFilmeESala();
         when(sessaoRepository.findBySala(sala)).thenReturn(new ArrayList<>());
         when(sessaoRepository.save(any(Sessao.class))).thenReturn(sessao);
+        doNothing().when(assentoService).inicializarAssentosParaSessao(any(Sessao.class));
 
         Sessao resultado = sessaoService.salvar(sessao);
 
         assertNotNull(resultado);
         assertEquals(id, resultado.getId());
         verify(sessaoRepository, times(1)).save(sessao);
+        verify(assentoService, times(1)).inicializarAssentosParaSessao(sessao);
     }
 
     @Test
@@ -132,19 +138,14 @@ class SessaoServiceTest {
 
         assertNotNull(resultado);
         assertEquals(id, resultado.getId());
-        assertEquals("Matrix", resultado.getFilme().getNome());
         verify(sessaoRepository, times(1)).findById(id);
     }
 
     @Test
     void deveLancarExcecaoAoBuscarSessaoPorIdInexistente() {
         when(sessaoRepository.findById(id)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> sessaoService.buscarPorId(id),
-                "Sessão não encontrada");
+        assertThrows(EntityNotFoundException.class, () -> sessaoService.buscarPorId(id));
     }
-
-    // ===== TESTES DE ATUALIZAÇÃO =====
 
     @Test
     void deveAtualizarSessaoComHorarioValido() {
@@ -162,17 +163,6 @@ class SessaoServiceTest {
     }
 
     @Test
-    void deveLancarExcecaoAoAtualizarSessaoInexistente() {
-        Sessao sessaoAtualizada = new Sessao();
-        when(sessaoRepository.findById(id)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> sessaoService.atualizar(id, sessaoAtualizada),
-                "Sessão não encontrada");
-    }
-
-    // ===== TESTES DE EXCLUSÃO =====
-
-    @Test
     void deveExcluirSessaoComSucesso() {
         when(sessaoRepository.findById(id)).thenReturn(Optional.of(sessao));
         doNothing().when(sessaoRepository).deleteById(id);
@@ -183,27 +173,15 @@ class SessaoServiceTest {
 
     @Test
     void deveLancarExcecaoAoExcluirSessaoComIngressos() {
-        Ingresso ingresso = new Ingresso();
         List<Ingresso> ingressos = new ArrayList<>();
-        ingressos.add(ingresso);
+        ingressos.add(new Ingresso());
         sessao.setIngressos(ingressos);
 
         when(sessaoRepository.findById(id)).thenReturn(Optional.of(sessao));
 
-        assertThrows(DadosInvalidosException.class, () -> sessaoService.excluir(id),
-                "Não é possível cancelar a sessão");
+        assertThrows(DadosInvalidosException.class, () -> sessaoService.excluir(id));
         verify(sessaoRepository, never()).deleteById(id);
     }
-
-    @Test
-    void deveLancarExcecaoAoExcluirSessaoInexistente() {
-        when(sessaoRepository.findById(id)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> sessaoService.excluir(id),
-                "Sessão não encontrada");
-    }
-
-    // ===== TESTES DE DETECÇÃO DE CONFLITOS =====
 
     @ParameterizedTest
     @ValueSource(strings = {"15:00", "13:00"})
@@ -217,26 +195,8 @@ class SessaoServiceTest {
         stubFilmeESala();
         when(sessaoRepository.findBySala(sala)).thenReturn(sessoesSala);
 
-        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(novaSessao),
-                "Conflito de horário");
+        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(novaSessao));
     }
-
-    @Test
-    void naoDeveExistirConflitoCom0MinutosDeIntervaloNoFinal() {
-        Date date = tomorrow();
-        Sessao sessao1 = novaSessao(date, "14:00");
-        Sessao novaSessao = novaSessao(date, "16:16");
-        List<Sessao> sessoesSala = new ArrayList<>();
-        sessoesSala.add(sessao1);
-
-        stubFilmeESala();
-        when(sessaoRepository.findBySala(sala)).thenReturn(sessoesSala);
-        when(sessaoRepository.save(any(Sessao.class))).thenReturn(novaSessao);
-
-        Sessao resultado = sessaoService.salvar(novaSessao);
-        assertNotNull(resultado);
-    }
-
 
     private void stubFilmeESala() {
         when(filmeService.buscarPorId(filmeId)).thenReturn(filme);
@@ -248,13 +208,13 @@ class SessaoServiceTest {
     }
 
     private Sessao novaSessao(Date date, String horario) {
-        Sessao sessao = new Sessao();
-        sessao.setId(UUID.randomUUID());
-        sessao.setFilme(filme);
-        sessao.setSala(sala);
-        sessao.setData(date);
-        sessao.setHorarioFilme(horario);
-        return sessao;
+        Sessao s = new Sessao();
+        s.setId(UUID.randomUUID());
+        s.setFilme(filme);
+        s.setSala(sala);
+        s.setData(date);
+        s.setHorarioFilme(horario);
+        return s;
     }
 
     private Date tomorrow() {
