@@ -72,7 +72,7 @@ public class IngressoService {
 
         for (UUID assentoId : assentoIds) {
             AssentoSessao assentoSessao = assentoSessaoRepository
-                    .findBySessaoIdAndAssentoIdForUpdate(sessaoId, assentoId)
+                    .findBySessaoIdAndAssentoId(sessaoId, assentoId)
                     .orElseThrow(() -> new EntityNotFoundException("Assento nao encontrado para esta sessao"));
 
             if (assentoSessao.isOcupado()) {

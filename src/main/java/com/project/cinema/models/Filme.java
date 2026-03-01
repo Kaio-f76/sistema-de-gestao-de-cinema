@@ -1,7 +1,7 @@
 package com.project.cinema.models;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,7 +28,7 @@ public class Filme {
     private Double valorFilme;
 
     @OneToMany(mappedBy = "filme")
-    @JsonManagedReference("filme-sessoes")
+    @JsonIgnoreProperties({"filme", "sala", "ingressos"})
     private List<Sessao> sessoes = new ArrayList<>();
 
     //getters seters

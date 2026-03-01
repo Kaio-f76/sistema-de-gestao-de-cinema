@@ -2,6 +2,7 @@ package com.project.cinema.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -25,12 +26,12 @@ public class Sessao {
 
     @ManyToOne
     @JoinColumn(name = "filme_id")
-    @JsonBackReference("filme-sessoes")
+    @JsonIgnoreProperties("sessoes")
     private Filme filme;
 
     @ManyToOne
     @JoinColumn(name = "sala_id")
-    @JsonBackReference("sala-sessoes")
+    @JsonIgnoreProperties("sessoes")
     private Sala sala;
 
     @OneToMany(mappedBy = "sessao", cascade = CascadeType.ALL, orphanRemoval = true)
