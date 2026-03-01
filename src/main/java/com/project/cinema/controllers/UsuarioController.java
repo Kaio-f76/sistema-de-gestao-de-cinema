@@ -10,6 +10,8 @@ import com.project.cinema.exceptions.EmailJaCadastradoException;
 import com.project.cinema.exceptions.DadosInvalidosException;
 import com.project.cinema.exceptions.EmailNaoEncontradoException; 
 import com.project.cinema.exceptions.SenhaIncorretaException; 
+import com.project.cinema.dto.LoginRequest;
+import com.project.cinema.dto.CadastroRequest;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -22,9 +24,15 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
+
     @PostMapping("/cadastro")
-    public ResponseEntity<?> criarConta(@RequestBody Usuario usuario, HttpSession session) {
+    public ResponseEntity<?> criarConta(@RequestBody CadastroRequest cadastroRequest, HttpSession session) {
         try {
+            Usuario usuario = new Usuario();
+            usuario.setNome(cadastroRequest.getNome());
+            usuario.setEmail(cadastroRequest.getEmail());
+            usuario.setSenha(cadastroRequest.getSenha());
+
             Usuario novoUsuario = usuarioService.criarConta(usuario);
             session.setAttribute("usuario", novoUsuario);
             return ResponseEntity.ok(novoUsuario);
@@ -36,9 +44,9 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Usuario usuario, HttpSession session) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
         try {
-            Usuario usuarioLogado = usuarioService.login(usuario.getEmail(), usuario.getSenha());
+            Usuario usuarioLogado = usuarioService.login(loginRequest.getEmail(), loginRequest.getSenha());
             session.setAttribute("usuario", usuarioLogado);
             return ResponseEntity.ok(usuarioLogado);
         } catch (EmailNaoEncontradoException e) {
