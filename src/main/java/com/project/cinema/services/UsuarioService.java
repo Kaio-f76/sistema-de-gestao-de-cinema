@@ -40,7 +40,7 @@ public class UsuarioService {
 
         // Define regras de negócio: todo novo usuário é CLIENTE com saldo inicial 0
         usuario.setTipoUsuario(TipoUsuario.CLIENTE);
-        usuario.setSaldo(0L);
+        usuario.setSaldo(5000.00);
 
         return usuarioRepository.save(usuario);
     }

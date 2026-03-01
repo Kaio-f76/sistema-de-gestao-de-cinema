@@ -1,5 +1,6 @@
 package com.project.cinema.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.List;
 import java.util.ArrayList;
@@ -18,7 +19,11 @@ public class Sala {
     private Integer numAssentos;
 
     @OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"filme", "sala", "ingressos"})
     private List<Sessao> sessoes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Assento> assentos = new ArrayList<>();
 
     public Sala() {}
 
@@ -43,6 +48,10 @@ public class Sala {
         return sessoes;
     }
 
+    public List<Assento> getAssentos() {
+        return assentos;
+    }
+
     public void setId(UUID id) {
         this.id = id;
     }
@@ -57,6 +66,10 @@ public class Sala {
 
     public void setSessoes(List<Sessao> sessoes) {
         this.sessoes = sessoes;
+    }
+
+    public void setAssentos(List<Assento> assentos) {
+        this.assentos = assentos;
     }
 // getters e setters
 }

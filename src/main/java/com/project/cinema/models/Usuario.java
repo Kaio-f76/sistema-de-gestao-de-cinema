@@ -1,8 +1,9 @@
 package com.project.cinema.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-//import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,7 +21,6 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
-    //@JsonIgnore
     @Column(nullable = false)
     private String senha;
 
@@ -28,12 +28,11 @@ public class Usuario {
     @Column(nullable = false)
     private TipoUsuario tipoUsuario = TipoUsuario.CLIENTE; // valor default
 
-    private Long saldo;
+    private Double saldo;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Ingresso> ingressos;
-
-
+    @JsonManagedReference("usuario-ingressos")
+    private List<Ingresso> ingressos = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -75,11 +74,11 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
-    public Long getSaldo() {
+    public Double getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(Long saldo) {
+    public void setSaldo(Double saldo) {
         this.saldo = saldo;
     }
 

@@ -1,7 +1,10 @@
 package com.project.cinema.models;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="sessao")
+@Table(name = "sessao")
 public class Sessao {
 
     @Id
@@ -23,17 +26,21 @@ public class Sessao {
 
     @ManyToOne
     @JoinColumn(name = "filme_id")
-    @JsonManagedReference
+    @JsonIgnoreProperties("sessoes")
     private Filme filme;
 
     @ManyToOne
     @JoinColumn(name = "sala_id")
+    @JsonIgnoreProperties("sessoes")
     private Sala sala;
 
     @OneToMany(mappedBy = "sessao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("sessao-ingressos")
     private List<Ingresso> ingressos = new ArrayList<>();
 
-    // getters e setters
+    @OneToMany(mappedBy = "sessao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<AssentoSessao> assentosSessao = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -43,20 +50,20 @@ public class Sessao {
         this.id = id;
     }
 
-    public Date getDate() {
+    public Date getData() {
         return data;
     }
 
-    public void setDate(Date date) {
-        this.data = date;
+    public void setData(Date data) {
+        this.data = data;
     }
 
-    public String getHorario() {
+    public String getHorarioFilme() {
         return horarioFilme;
     }
 
-    public void setHorario(String horario) {
-        this.horarioFilme = horario;
+    public void setHorarioFilme(String horarioFilme) {
+        this.horarioFilme = horarioFilme;
     }
 
     public Filme getFilme() {
@@ -81,5 +88,13 @@ public class Sessao {
 
     public void setIngressos(List<Ingresso> ingressos) {
         this.ingressos = ingressos;
+    }
+
+    public List<AssentoSessao> getAssentosSessao() {
+        return assentosSessao;
+    }
+
+    public void setAssentosSessao(List<AssentoSessao> assentosSessao) {
+        this.assentosSessao = assentosSessao;
     }
 }

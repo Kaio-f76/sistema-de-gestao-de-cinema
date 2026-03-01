@@ -1,7 +1,9 @@
 package com.project.cinema.controllers;
 
+import com.project.cinema.dtos.assento.AssentoStatusResponse;
 import com.project.cinema.exceptions.DadosInvalidosException;
 import com.project.cinema.models.Sessao;
+import com.project.cinema.services.AssentoService;
 import com.project.cinema.services.SessaoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +16,15 @@ import java.util.UUID;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
-@RequestMapping("/api/sessoes")
+@RequestMapping({"/api/sessoes", "/sessoes"})
 public class SessaoController {
 
     private final SessaoService sessaoService;
+    private final AssentoService assentoService;
     
-    public SessaoController(SessaoService sessaoService) {
+    public SessaoController(SessaoService sessaoService, AssentoService assentoService) {
         this.sessaoService = sessaoService;
+        this.assentoService = assentoService;
     }
 
     @GetMapping
@@ -72,5 +76,10 @@ public class SessaoController {
         } catch (DadosInvalidosException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/{sessaoId}/assentos")
+    public ResponseEntity<List<AssentoStatusResponse>> listarAssentos(@PathVariable UUID sessaoId) {
+        return ResponseEntity.ok(assentoService.listarAssentos(sessaoId));
     }
 }

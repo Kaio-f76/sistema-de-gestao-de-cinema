@@ -1,38 +1,40 @@
 package com.project.cinema.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
-@Table(name="ingresso")
+@Table(name = "ingresso")
 public class Ingresso {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    
-    @ManyToOne
-    @JoinColumn(name = "sessao_id")
-    private Sessao sessao;
-    
-    private int numAssento;
-    private String tipoIngresso;
-    private Double ValorI;
-    private Double ValorDesconto;
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "assento_sessao_id", nullable = false, unique = true)
+    private AssentoSessao assentoSessao;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonBackReference("usuario-ingressos")
     private Usuario usuario;
 
-    //geters seters
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "sessao_id", nullable = false)
+    @JsonBackReference("sessao-ingressos")
+    private Sessao sessao;
 
-    public Usuario getUsuario() {
-        return usuario;
-    }
+    private String tipoIngresso;
+    private Double valorI;
+    private Double valorDesconto;
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    private Date dataCompra;
 
     public UUID getId() {
         return id;
@@ -42,20 +44,28 @@ public class Ingresso {
         this.id = id;
     }
 
+    public AssentoSessao getAssentoSessao() {
+        return assentoSessao;
+    }
+
+    public void setAssentoSessao(AssentoSessao assentoSessao) {
+        this.assentoSessao = assentoSessao;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
     public Sessao getSessao() {
         return sessao;
     }
 
     public void setSessao(Sessao sessao) {
         this.sessao = sessao;
-    }
-
-    public int getNumAssento() {
-        return numAssento;
-    }
-
-    public void setNumAssento(int numAssento) {
-        this.numAssento = numAssento;
     }
 
     public String getTipoIngresso() {
@@ -67,18 +77,26 @@ public class Ingresso {
     }
 
     public Double getValorI() {
-        return ValorI;
+        return valorI;
     }
 
     public void setValorI(Double valorI) {
-        ValorI = valorI;
+        this.valorI = valorI;
     }
 
     public Double getValorDesconto() {
-        return ValorDesconto;
+        return valorDesconto;
     }
 
     public void setValorDesconto(Double valorDesconto) {
-        ValorDesconto = valorDesconto;
+        this.valorDesconto = valorDesconto;
+    }
+
+    public Date getDataCompra() {
+        return dataCompra;
+    }
+
+    public void setDataCompra(Date dataCompra) {
+        this.dataCompra = dataCompra;
     }
 }
