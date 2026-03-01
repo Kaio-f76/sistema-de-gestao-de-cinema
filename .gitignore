@@ -2,6 +2,9 @@
 setup_project.sh
 script.sh
 
+
+*.mcp.json
+
 # Eclipse / IDE
 .metadata/
 
