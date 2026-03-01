@@ -2,6 +2,7 @@ package com.project.cinema;
 
 import com.project.cinema.exceptions.EmailJaCadastradoException;
 import com.project.cinema.exceptions.DadosInvalidosException;
+import com.project.cinema.exceptions.SenhaIncorretaException;
 import com.project.cinema.models.TipoUsuario;
 import com.project.cinema.models.Usuario;
 import com.project.cinema.repositories.UsuarioRepository;
@@ -77,6 +78,6 @@ class UsuarioServiceTest {
         usuario.setSenha("123456");
         usuarioService.criarConta(usuario);
 
-        assertThrows(DadosInvalidosException.class, () -> usuarioService.login("carlos@email.com", "errada"));
+        assertThrows(SenhaIncorretaException.class, () -> usuarioService.login("carlos@email.com", "errada"));
     }
 }
