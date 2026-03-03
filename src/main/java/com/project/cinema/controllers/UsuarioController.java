@@ -12,6 +12,8 @@ import com.project.cinema.exceptions.SenhaIncorretaException;
 import com.project.cinema.dtos.LoginRequest;
 import com.project.cinema.dtos.CadastroRequest;
 
+import java.util.UUID;
+
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/usuarios")
@@ -75,7 +77,36 @@ public class UsuarioController {
     }
     return ResponseEntity.ok(usuario);
 }
+    @PutMapping("/{id}")
+    public ResponseEntity<Usuario> atualizar(
+            @PathVariable UUID id,
+            @RequestBody Usuario usuario,
+            HttpSession session) {
 
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuario");
+
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(440).body(null);
+        }
+
+        Usuario usuarioAtualizado = usuarioService.atualizarConta(usuario, id);
+        return ResponseEntity.ok(usuarioAtualizado);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> excluir(
+            @PathVariable UUID id,
+            HttpSession session) {
+
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuario");
+
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(440).body("Sessão expirada.");
+        }
+
+        usuarioService.excluirUsuario(id, usuarioLogado.getId());
+
+        return ResponseEntity.ok("Usuário excluído com sucesso.");
+    }
 }
 
 
