@@ -1,6 +1,7 @@
 package com.project.cinema.models;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
@@ -16,8 +17,10 @@ public class Filme {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String nome;
+    @Column(length = 2000)
     private String descricao;
     @Temporal(TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "America/Sao_Paulo")
     private Date dataLancamento;
     private String genero;
     private String diretor;

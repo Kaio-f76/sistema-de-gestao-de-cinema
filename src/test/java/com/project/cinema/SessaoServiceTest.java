@@ -21,6 +21,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -112,6 +114,21 @@ class SessaoServiceTest {
     void deveLancarExcecaoAoSalvarSessaoSemHorario() {
         stubFilmeESala();
         sessao.setHorarioFilme(null);
+        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao));
+    }
+
+    @Test
+    void deveLancarExcecaoAoSalvarSessaoComDataPassada() {
+        stubFilmeESala();
+        sessao.setData(yesterday());
+        assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao));
+    }
+
+    @Test
+    void deveLancarExcecaoAoSalvarSessaoNoDiaAtualComHorarioPassado() {
+        stubFilmeESala();
+        sessao.setData(today());
+        sessao.setHorarioFilme("00:00");
         assertThrows(DadosInvalidosException.class, () -> sessaoService.salvar(sessao));
     }
 
@@ -219,5 +236,15 @@ class SessaoServiceTest {
 
     private Date tomorrow() {
         return new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
+    }
+
+    private Date yesterday() {
+        return new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+    }
+
+    private Date today() {
+        return Date.from(LocalDate.now()
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant());
     }
 }

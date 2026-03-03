@@ -12,7 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -26,10 +29,10 @@ public class SessaoService {
     private final SalaService salaService;
     private final AssentoService assentoService;
     private final AssentoSessaoRepository assentoSessaoRepository;
-    
+
     public SessaoService(SessaoRepository sessaoRepository, FilmeService filmeService, SalaService salaService,
-    AssentoService assentoService,AssentoSessaoRepository assentoSessaoRepository,FilmeRepository filmeRepository
-    ) {
+                         AssentoService assentoService, AssentoSessaoRepository assentoSessaoRepository,
+                         FilmeRepository filmeRepository) {
         this.sessaoRepository = sessaoRepository;
         this.filmeService = filmeService;
         this.salaService = salaService;
@@ -44,7 +47,7 @@ public class SessaoService {
 
     public Sessao buscarPorId(UUID id) {
         return sessaoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Sessão não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Sessao nao encontrada"));
     }
 
     public List<Sessao> buscarPorFilme(UUID filmeId) {
@@ -59,26 +62,23 @@ public class SessaoService {
 
     @Transactional
     public Sessao salvar(Sessao sessao) {
-        // Validação 1: Verificar se filme existe
         if (sessao.getFilme() == null || sessao.getFilme().getId() == null) {
-            throw new DadosInvalidosException("Filme é obrigatório para criar uma sessão");
+            throw new DadosInvalidosException("Filme e obrigatorio para criar uma sessao");
         }
         Filme filme = filmeService.buscarPorId(sessao.getFilme().getId());
         sessao.setFilme(filme);
 
-        // Validação 2: Verificar se sala existe
         if (sessao.getSala() == null || sessao.getSala().getId() == null) {
-            throw new DadosInvalidosException("Sala é obrigatória para criar uma sessão");
+            throw new DadosInvalidosException("Sala e obrigatoria para criar uma sessao");
         }
         Sala sala = salaService.salaById(sessao.getSala().getId());
         sessao.setSala(sala);
 
-        // Validação 3: Verificar se data e horário foram fornecidos
         if (sessao.getData() == null || sessao.getHorarioFilme() == null || sessao.getHorarioFilme().trim().isEmpty()) {
-            throw new DadosInvalidosException("Data e horário da sessão são obrigatórios");
+            throw new DadosInvalidosException("Data e horario da sessao sao obrigatorios");
         }
 
-        // Validação 4: Verificar conflito de horários
+        validarDataHorarioNaoPassado(sessao);
         validarConflitoHorario(sessao);
 
         Sessao sessaoSalva = sessaoRepository.save(sessao);
@@ -91,13 +91,11 @@ public class SessaoService {
         Sessao sessaoExistente = buscarPorId(id);
         UUID salaAnteriorId = sessaoExistente.getSala() != null ? sessaoExistente.getSala().getId() : null;
 
-        // Atualizar filme se fornecido
         if (novaSessao.getFilme() != null && novaSessao.getFilme().getId() != null) {
             Filme filme = filmeService.buscarPorId(novaSessao.getFilme().getId());
             sessaoExistente.setFilme(filme);
         }
 
-        // Atualizar sala se fornecida
         if (novaSessao.getSala() != null && novaSessao.getSala().getId() != null) {
             Sala sala = salaService.salaById(novaSessao.getSala().getId());
             sessaoExistente.setSala(sala);
@@ -106,12 +104,17 @@ public class SessaoService {
         if (novaSessao.getData() != null) {
             sessaoExistente.setData(novaSessao.getData());
         }
-        
+
         if (novaSessao.getHorarioFilme() != null && !novaSessao.getHorarioFilme().trim().isEmpty()) {
             sessaoExistente.setHorarioFilme(novaSessao.getHorarioFilme());
         }
 
-        // Validar conflito de horários novamente
+        if (sessaoExistente.getData() == null || sessaoExistente.getHorarioFilme() == null
+                || sessaoExistente.getHorarioFilme().trim().isEmpty()) {
+            throw new DadosInvalidosException("Data e horario da sessao sao obrigatorios");
+        }
+
+        validarDataHorarioNaoPassado(sessaoExistente);
         validarConflitoHorario(sessaoExistente);
 
         Sessao sessaoAtualizada = sessaoRepository.save(sessaoExistente);
@@ -127,47 +130,61 @@ public class SessaoService {
     public void excluir(UUID id) {
         Sessao sessao = buscarPorId(id);
 
-        // Validação 1: Verificar se há ingressos emitidos
         if (!sessao.getIngressos().isEmpty()) {
-            throw new DadosInvalidosException("Não é possível cancelar a sessão. Existem " +
-                    sessao.getIngressos().size() + " ingresso(s) emitido(s) para esta sessão. " +
+            throw new DadosInvalidosException("Nao e possivel cancelar a sessao. Existem " +
+                    sessao.getIngressos().size() + " ingresso(s) emitido(s) para esta sessao. " +
                     "Realize o estorno aos clientes antes de cancelar.");
         }
 
-        // Validação 2: Verificar se há sala ou filme vinculados
         boolean temSala = sessao.getSala() != null;
         boolean temFilme = sessao.getFilme() != null;
 
         if (temSala || temFilme) {
             throw new DadosInvalidosException(
-                    "Não é possível apagar a sessão pois ela está vinculada" +
+                    "Nao e possivel apagar a sessao pois ela esta vinculada" +
                             (temFilme ? " ao filme \"" + sessao.getFilme().getNome() + "\"" : "") +
-                            (temSala  ? " à sala \"" + sessao.getSala().getNome() + "\"" : "") + "."
+                            (temSala ? " a sala \"" + sessao.getSala().getNome() + "\"" : "") + "."
             );
         }
 
         sessaoRepository.deleteById(id);
     }
+
+    private void validarDataHorarioNaoPassado(Sessao sessao) {
+        LocalTime horario;
+        try {
+            horario = LocalTime.parse(sessao.getHorarioFilme());
+        } catch (Exception e) {
+            throw new DadosInvalidosException("Horario invalido. Use o formato HH:mm");
+        }
+
+        LocalDate dataSessao = sessao.getData()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDateTime inicioSessao = LocalDateTime.of(dataSessao, horario);
+        if (inicioSessao.isBefore(LocalDateTime.now())) {
+            throw new DadosInvalidosException("Data e horario da sessao nao podem ser menores que a data/hora atual");
+        }
+    }
+
     private void validarConflitoHorario(Sessao novaSessao) {
-        // Buscar todas as sessões da sala
         List<Sessao> sessoesNaSala = sessaoRepository.findBySala(novaSessao.getSala());
 
-        // Filtrar por data em memória
         List<Sessao> sessoesNoDia = sessoesNaSala.stream()
                 .filter(s -> s.getData().equals(novaSessao.getData()))
                 .collect(Collectors.toList());
 
         for (Sessao sessaoExistente : sessoesNoDia) {
-            // Pular a comparação se for a mesma sessão (no caso de atualização)
             if (sessaoExistente.getId() != null && sessaoExistente.getId().equals(novaSessao.getId())) {
                 continue;
             }
 
-            // Verificar se há sobreposição de horários
             if (horariosConflitam(novaSessao, sessaoExistente)) {
                 throw new DadosInvalidosException(
-                        "Conflito de horário! A sala " + novaSessao.getSala().getNome() +
-                                " já possui uma sessão agendada para " + sessaoExistente.getHorarioFilme() +
+                        "Conflito de horario! A sala " + novaSessao.getSala().getNome() +
+                                " ja possui uma sessao agendada para " + sessaoExistente.getHorarioFilme() +
                                 " no dia " + new SimpleDateFormat("dd/MM/yyyy").format(novaSessao.getData())
                 );
             }
@@ -176,25 +193,19 @@ public class SessaoService {
 
     private boolean horariosConflitam(Sessao sessao1, Sessao sessao2) {
         try {
-            // Parse dos horários
             LocalTime inicio1 = LocalTime.parse(sessao1.getHorarioFilme());
             LocalTime inicio2 = LocalTime.parse(sessao2.getHorarioFilme());
-            
-            // Calcular duração em minutos (padrão 120 se não especificado)
+
             int duracao1 = sessao1.getFilme().getDuracao() != null ? sessao1.getFilme().getDuracao() : 120;
             int duracao2 = sessao2.getFilme().getDuracao() != null ? sessao2.getFilme().getDuracao() : 120;
-            
-            // Calcular horário de término (adicionando duração ao horário de início)
+
             LocalTime fim1 = inicio1.plusMinutes(duracao1);
             LocalTime fim2 = inicio2.plusMinutes(duracao2);
-            
-            // Verificar sobreposição: sessão 1 começa antes de sessão 2 terminar E sessão 2 começa antes de sessão 1 terminar
+
             return inicio1.isBefore(fim2) && inicio2.isBefore(fim1);
-            
+
         } catch (Exception e) {
-            // Se houver erro no parse do horário, considerar como conflito para ser seguro
             return true;
         }
     }
 }
-
