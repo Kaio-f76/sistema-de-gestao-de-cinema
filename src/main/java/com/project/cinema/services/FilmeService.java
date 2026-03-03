@@ -121,11 +121,6 @@ public class FilmeService {
         filmeRepository.deleteById(id);
     }
 
-    /**
-     * Valida os campos obrigatórios do filme
-     * @param filme - Filme a ser validado
-     * @throws DadosInvalidosException - Se algum campo obrigatório for inválido
-     */
     private void validarFilme(Filme filme) {
         if (filme == null) {
             throw new DadosInvalidosException("Filme não pode ser nulo");

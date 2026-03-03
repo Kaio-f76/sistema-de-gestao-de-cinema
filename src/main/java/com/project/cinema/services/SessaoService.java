@@ -5,6 +5,7 @@ import com.project.cinema.models.Filme;
 import com.project.cinema.models.Sala;
 import com.project.cinema.models.Sessao;
 import com.project.cinema.repositories.AssentoSessaoRepository;
+import com.project.cinema.repositories.FilmeRepository;
 import com.project.cinema.repositories.SessaoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -21,20 +22,20 @@ public class SessaoService {
 
     private final SessaoRepository sessaoRepository;
     private final FilmeService filmeService;
+    private final FilmeRepository filmeRepository;
     private final SalaService salaService;
     private final AssentoService assentoService;
     private final AssentoSessaoRepository assentoSessaoRepository;
     
-    public SessaoService(SessaoRepository sessaoRepository,
-                         FilmeService filmeService,
-                         SalaService salaService,
-                         AssentoService assentoService,
-                         AssentoSessaoRepository assentoSessaoRepository) {
+    public SessaoService(SessaoRepository sessaoRepository, FilmeService filmeService, SalaService salaService,
+    AssentoService assentoService,AssentoSessaoRepository assentoSessaoRepository,FilmeRepository filmeRepository
+    ) {
         this.sessaoRepository = sessaoRepository;
         this.filmeService = filmeService;
         this.salaService = salaService;
         this.assentoService = assentoService;
         this.assentoSessaoRepository = assentoSessaoRepository;
+        this.filmeRepository = filmeRepository;
     }
 
     public List<Sessao> listar() {
@@ -126,21 +127,27 @@ public class SessaoService {
     public void excluir(UUID id) {
         Sessao sessao = buscarPorId(id);
 
-        // Validação CRÍTICA: Verificar se há ingressos emitidos
+        // Validação 1: Verificar se há ingressos emitidos
         if (!sessao.getIngressos().isEmpty()) {
             throw new DadosInvalidosException("Não é possível cancelar a sessão. Existem " +
                     sessao.getIngressos().size() + " ingresso(s) emitido(s) para esta sessão. " +
                     "Realize o estorno aos clientes antes de cancelar.");
         }
 
+        // Validação 2: Verificar se há sala ou filme vinculados
+        boolean temSala = sessao.getSala() != null;
+        boolean temFilme = sessao.getFilme() != null;
+
+        if (temSala || temFilme) {
+            throw new DadosInvalidosException(
+                    "Não é possível apagar a sessão pois ela está vinculada" +
+                            (temFilme ? " ao filme \"" + sessao.getFilme().getNome() + "\"" : "") +
+                            (temSala  ? " à sala \"" + sessao.getSala().getNome() + "\"" : "") + "."
+            );
+        }
+
         sessaoRepository.deleteById(id);
     }
-
-    /**
-     * Validação de conflito de horários
-     * Verifica se há sobreposição de sessões na mesma sala, no mesmo dia
-     * Considera a duração do filme para calcular o horário de término
-     */
     private void validarConflitoHorario(Sessao novaSessao) {
         // Buscar todas as sessões da sala
         List<Sessao> sessoesNaSala = sessaoRepository.findBySala(novaSessao.getSala());
@@ -167,14 +174,6 @@ public class SessaoService {
         }
     }
 
-    /**
-     * Verifica se dois horários conflitam considerando a duração dos filmes
-     * Calcula o horário de término baseado na duração e verifica sobreposição
-     * 
-     * @param sessao1 - Primeira sessão
-     * @param sessao2 - Segunda sessão
-     * @return true se os horários se sobrepõem, false caso contrário
-     */
     private boolean horariosConflitam(Sessao sessao1, Sessao sessao2) {
         try {
             // Parse dos horários

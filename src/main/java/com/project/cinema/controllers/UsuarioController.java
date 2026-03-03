@@ -7,11 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.project.cinema.exceptions.EmailJaCadastradoException;
-import com.project.cinema.exceptions.DadosInvalidosException;
-import com.project.cinema.exceptions.EmailNaoEncontradoException; 
+import com.project.cinema.exceptions.EmailNaoEncontradoException;
 import com.project.cinema.exceptions.SenhaIncorretaException; 
-import com.project.cinema.dto.LoginRequest;
-import com.project.cinema.dto.CadastroRequest;
+import com.project.cinema.dtos.LoginRequest;
+import com.project.cinema.dtos.CadastroRequest;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
