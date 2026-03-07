@@ -172,6 +172,8 @@ public class IngressoService {
         response.setUsuarioId(ingresso.getUsuario().getId());
         response.setSessaoId(ingresso.getSessao().getId());
         response.setAssentoSessaoId(ingresso.getAssentoSessao().getId());
+        response.setAssentoFila(ingresso.getAssentoSessao().getAssento().getFila());
+        response.setAssentoNumero(ingresso.getAssentoSessao().getAssento().getNumero());
         response.setTipoIngresso(ingresso.getTipoIngresso());
         response.setValorI(ingresso.getValorI());
         response.setValorDesconto(ingresso.getValorDesconto());

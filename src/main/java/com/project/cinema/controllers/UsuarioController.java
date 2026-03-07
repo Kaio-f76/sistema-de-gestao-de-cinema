@@ -71,12 +71,15 @@ public class UsuarioController {
 
     @GetMapping("/me")
     public ResponseEntity<Usuario> getUsuario(HttpSession session) {
-    Usuario usuario = (Usuario) session.getAttribute("usuario");
-    if (usuario == null) {
-        return ResponseEntity.status(440).body(null); // sessão expirada ou não iniciada
+        Usuario usuarioSessao = (Usuario) session.getAttribute("usuario");
+        if (usuarioSessao == null) {
+            return ResponseEntity.status(440).body(null);
+        }
+        // Buscar dados atualizados do banco (saldo, etc.)
+        Usuario usuarioAtualizado = usuarioService.usuarioById(usuarioSessao.getId());
+        session.setAttribute("usuario", usuarioAtualizado);
+        return ResponseEntity.ok(usuarioAtualizado);
     }
-    return ResponseEntity.ok(usuario);
-}
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> atualizar(
             @PathVariable UUID id,
@@ -90,6 +93,7 @@ public class UsuarioController {
         }
 
         Usuario usuarioAtualizado = usuarioService.atualizarConta(usuario, id);
+        session.setAttribute("usuario", usuarioAtualizado);
         return ResponseEntity.ok(usuarioAtualizado);
     }
     @DeleteMapping("/{id}")

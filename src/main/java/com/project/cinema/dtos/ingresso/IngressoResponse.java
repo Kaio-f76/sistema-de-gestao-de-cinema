@@ -8,6 +8,8 @@ public class IngressoResponse {
     private UUID usuarioId;
     private UUID sessaoId;
     private UUID assentoSessaoId;
+    private String assentoFila;
+    private int assentoNumero;
     private String tipoIngresso;
     private Double valorI;
     private Double valorDesconto;
@@ -43,6 +45,22 @@ public class IngressoResponse {
 
     public void setAssentoSessaoId(UUID assentoSessaoId) {
         this.assentoSessaoId = assentoSessaoId;
+    }
+
+    public String getAssentoFila() {
+        return assentoFila;
+    }
+
+    public void setAssentoFila(String assentoFila) {
+        this.assentoFila = assentoFila;
+    }
+
+    public int getAssentoNumero() {
+        return assentoNumero;
+    }
+
+    public void setAssentoNumero(int assentoNumero) {
+        this.assentoNumero = assentoNumero;
     }
 
     public String getTipoIngresso() {
