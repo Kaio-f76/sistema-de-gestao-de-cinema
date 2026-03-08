@@ -94,9 +94,9 @@ public class UsuarioService {
         Usuario usuarioLogado = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
-        if (usuarioLogado.getTipoUsuario() != TipoUsuario.ADMINISTRADOR) {
-            throw new DadosInvalidosException("Usuário não autorizado.");
-        }
+//        if (usuarioLogado.getTipoUsuario() != TipoUsuario.ADMINISTRADOR) {
+//            throw new DadosInvalidosException("Usuário não autorizado.");
+//        }
 
         // Busca o usuário que será excluído
         Usuario usuarioParaExcluir = usuarioById(id);
