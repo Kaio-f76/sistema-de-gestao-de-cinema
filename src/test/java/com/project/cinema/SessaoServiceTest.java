@@ -181,10 +181,15 @@ class SessaoServiceTest {
 
     @Test
     void deveExcluirSessaoComSucesso() {
+        sessao.setFilme(null);
+        sessao.setSala(null);
+        sessao.setIngressos(new ArrayList<>());
+
         when(sessaoRepository.findById(id)).thenReturn(Optional.of(sessao));
         doNothing().when(sessaoRepository).deleteById(id);
 
         assertDoesNotThrow(() -> sessaoService.excluir(id));
+
         verify(sessaoRepository, times(1)).deleteById(id);
     }
 
