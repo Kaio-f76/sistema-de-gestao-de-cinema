@@ -2,6 +2,10 @@
 setup_project.sh
 script.sh
 
+*.jpg
+*.jpeg
+*.png
+*.webp
 
 *.mcp.json
 
