@@ -25,20 +25,17 @@ public class SessaoService {
 
     private final SessaoRepository sessaoRepository;
     private final FilmeService filmeService;
-    private final FilmeRepository filmeRepository;
     private final SalaService salaService;
     private final AssentoService assentoService;
     private final AssentoSessaoRepository assentoSessaoRepository;
 
     public SessaoService(SessaoRepository sessaoRepository, FilmeService filmeService, SalaService salaService,
-                         AssentoService assentoService, AssentoSessaoRepository assentoSessaoRepository,
-                         FilmeRepository filmeRepository) {
+                         AssentoService assentoService, AssentoSessaoRepository assentoSessaoRepository) {
         this.sessaoRepository = sessaoRepository;
         this.filmeService = filmeService;
         this.salaService = salaService;
         this.assentoService = assentoService;
         this.assentoSessaoRepository = assentoSessaoRepository;
-        this.filmeRepository = filmeRepository;
     }
 
     public List<Sessao> listar() {
@@ -47,7 +44,7 @@ public class SessaoService {
 
     public Sessao buscarPorId(UUID id) {
         return sessaoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Sessao nao encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Sessão não encontrada"));
     }
 
     public List<Sessao> buscarPorFilme(UUID filmeId) {
@@ -62,21 +59,13 @@ public class SessaoService {
 
     @Transactional
     public Sessao salvar(Sessao sessao) {
-        if (sessao.getFilme() == null || sessao.getFilme().getId() == null) {
-            throw new DadosInvalidosException("Filme e obrigatorio para criar uma sessao");
-        }
+        validarCamposObrigatorios(sessao);
+        
         Filme filme = filmeService.buscarPorId(sessao.getFilme().getId());
         sessao.setFilme(filme);
-
-        if (sessao.getSala() == null || sessao.getSala().getId() == null) {
-            throw new DadosInvalidosException("Sala e obrigatoria para criar uma sessao");
-        }
+        
         Sala sala = salaService.salaById(sessao.getSala().getId());
         sessao.setSala(sala);
-
-        if (sessao.getData() == null || sessao.getHorarioFilme() == null || sessao.getHorarioFilme().trim().isEmpty()) {
-            throw new DadosInvalidosException("Data e horario da sessao sao obrigatorios");
-        }
 
         validarDataHorarioNaoPassado(sessao);
         validarConflitoHorario(sessao);
@@ -92,28 +81,17 @@ public class SessaoService {
         UUID salaAnteriorId = sessaoExistente.getSala() != null ? sessaoExistente.getSala().getId() : null;
 
         if (novaSessao.getFilme() != null && novaSessao.getFilme().getId() != null) {
-            Filme filme = filmeService.buscarPorId(novaSessao.getFilme().getId());
-            sessaoExistente.setFilme(filme);
+            sessaoExistente.setFilme(filmeService.buscarPorId(novaSessao.getFilme().getId()));
         }
 
         if (novaSessao.getSala() != null && novaSessao.getSala().getId() != null) {
-            Sala sala = salaService.salaById(novaSessao.getSala().getId());
-            sessaoExistente.setSala(sala);
+            sessaoExistente.setSala(salaService.salaById(novaSessao.getSala().getId()));
         }
 
-        if (novaSessao.getData() != null) {
-            sessaoExistente.setData(novaSessao.getData());
-        }
+        if (novaSessao.getData() != null) sessaoExistente.setData(novaSessao.getData());
+        if (novaSessao.getHorarioFilme() != null) sessaoExistente.setHorarioFilme(novaSessao.getHorarioFilme());
 
-        if (novaSessao.getHorarioFilme() != null && !novaSessao.getHorarioFilme().trim().isEmpty()) {
-            sessaoExistente.setHorarioFilme(novaSessao.getHorarioFilme());
-        }
-
-        if (sessaoExistente.getData() == null || sessaoExistente.getHorarioFilme() == null
-                || sessaoExistente.getHorarioFilme().trim().isEmpty()) {
-            throw new DadosInvalidosException("Data e horario da sessao sao obrigatorios");
-        }
-
+        validarCamposObrigatorios(sessaoExistente);
         validarDataHorarioNaoPassado(sessaoExistente);
         validarConflitoHorario(sessaoExistente);
 
@@ -129,83 +107,60 @@ public class SessaoService {
 
     public void excluir(UUID id) {
         Sessao sessao = buscarPorId(id);
-
         if (!sessao.getIngressos().isEmpty()) {
-            throw new DadosInvalidosException("Nao e possivel cancelar a sessao. Existem " +
-                    sessao.getIngressos().size() + " ingresso(s) emitido(s) para esta sessao. " +
-                    "Realize o estorno aos clientes antes de cancelar.");
+            throw new DadosInvalidosException("Não é possível excluir: existem ingressos vendidos.");
         }
-
-        boolean temSala = sessao.getSala() != null;
-        boolean temFilme = sessao.getFilme() != null;
-
-        if (temSala || temFilme) {
-            throw new DadosInvalidosException(
-                    "Nao e possivel apagar a sessao pois ela esta vinculada" +
-                            (temFilme ? " ao filme \"" + sessao.getFilme().getNome() + "\"" : "") +
-                            (temSala ? " a sala \"" + sessao.getSala().getNome() + "\"" : "") + "."
-            );
-        }
-
         sessaoRepository.deleteById(id);
     }
 
+    private void validarCamposObrigatorios(Sessao sessao) {
+        if (sessao.getFilme() == null || sessao.getFilme().getId() == null) throw new DadosInvalidosException("Filme é obrigatório.");
+        if (sessao.getSala() == null || sessao.getSala().getId() == null) throw new DadosInvalidosException("Sala é obrigatória.");
+        if (sessao.getData() == null || sessao.getHorarioFilme() == null) throw new DadosInvalidosException("Data e horário são obrigatórios.");
+    }
+
     private void validarDataHorarioNaoPassado(Sessao sessao) {
-        LocalTime horario;
-        try {
-            horario = LocalTime.parse(sessao.getHorarioFilme());
-        } catch (Exception e) {
-            throw new DadosInvalidosException("Horario invalido. Use o formato HH:mm");
-        }
-
-        LocalDate dataSessao = sessao.getData()
-                .toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-
-        LocalDateTime inicioSessao = LocalDateTime.of(dataSessao, horario);
-        if (inicioSessao.isBefore(LocalDateTime.now())) {
-            throw new DadosInvalidosException("Data e horario da sessao nao podem ser menores que a data/hora atual");
+        LocalTime horario = LocalTime.parse(sessao.getHorarioFilme());
+        LocalDate dataSessao = sessao.getData().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        if (LocalDateTime.of(dataSessao, horario).isBefore(LocalDateTime.now())) {
+            throw new DadosInvalidosException("A sessão não pode ser retroativa.");
         }
     }
 
     private void validarConflitoHorario(Sessao novaSessao) {
         List<Sessao> sessoesNaSala = sessaoRepository.findBySala(novaSessao.getSala());
+        
+        // Formatar data para comparação manual segura
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dataNova = sdf.format(novaSessao.getData());
 
-        List<Sessao> sessoesNoDia = sessoesNaSala.stream()
-                .filter(s -> s.getData().equals(novaSessao.getData()))
-                .collect(Collectors.toList());
+        for (Sessao existente : sessoesNaSala) {
+            // Ignora a própria sessão em caso de update
+            if (novaSessao.getId() != null && existente.getId().equals(novaSessao.getId())) continue;
 
-        for (Sessao sessaoExistente : sessoesNoDia) {
-            if (sessaoExistente.getId() != null && sessaoExistente.getId().equals(novaSessao.getId())) {
-                continue;
-            }
-
-            if (horariosConflitam(novaSessao, sessaoExistente)) {
-                throw new DadosInvalidosException(
-                        "Conflito de horario! A sala " + novaSessao.getSala().getNome() +
-                                " ja possui uma sessao agendada para " + sessaoExistente.getHorarioFilme() +
-                                " no dia " + new SimpleDateFormat("dd/MM/yyyy").format(novaSessao.getData())
-                );
+            if (sdf.format(existente.getData()).equals(dataNova)) {
+                if (horariosConflitam(novaSessao, existente)) {
+                    throw new DadosInvalidosException(
+                        "Conflito de horário na sala " + novaSessao.getSala().getNome() + 
+                        " com a sessão de " + existente.getHorarioFilme() + " (" + existente.getFilme().getNome() + ")"
+                    );
+                }
             }
         }
     }
 
-    private boolean horariosConflitam(Sessao sessao1, Sessao sessao2) {
-        try {
-            LocalTime inicio1 = LocalTime.parse(sessao1.getHorarioFilme());
-            LocalTime inicio2 = LocalTime.parse(sessao2.getHorarioFilme());
+    private boolean horariosConflitam(Sessao s1, Sessao s2) {
+        LocalTime inicio1 = LocalTime.parse(s1.getHorarioFilme());
+        LocalTime inicio2 = LocalTime.parse(s2.getHorarioFilme());
 
-            int duracao1 = sessao1.getFilme().getDuracao() != null ? sessao1.getFilme().getDuracao() : 120;
-            int duracao2 = sessao2.getFilme().getDuracao() != null ? sessao2.getFilme().getDuracao() : 120;
+        // Se a duração não estiver definida, assume 120min + 20min de intervalo/limpeza
+        int duracao1 = (s1.getFilme().getDuracao() != null ? s1.getFilme().getDuracao() : 120) + 20;
+        int duracao2 = (s2.getFilme().getDuracao() != null ? s2.getFilme().getDuracao() : 120) + 20;
 
-            LocalTime fim1 = inicio1.plusMinutes(duracao1);
-            LocalTime fim2 = inicio2.plusMinutes(duracao2);
+        LocalTime fim1 = inicio1.plusMinutes(duracao1);
+        LocalTime fim2 = inicio2.plusMinutes(duracao2);
 
-            return inicio1.isBefore(fim2) && inicio2.isBefore(fim1);
-
-        } catch (Exception e) {
-            return true;
-        }
+        // Lógica de interseção de intervalos
+        return inicio1.isBefore(fim2) && inicio2.isBefore(fim1);
     }
 }
