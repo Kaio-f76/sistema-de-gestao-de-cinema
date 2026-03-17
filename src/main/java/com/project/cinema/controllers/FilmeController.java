@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.*;
+import java.io.IOException;
 
 import java.util.List;
 import java.util.UUID;
@@ -71,6 +74,32 @@ public class FilmeController {
             return ResponseEntity.noContent().build();
         } catch (DadosInvalidosException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{id}/upload")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> fazerUploadImagem(@PathVariable UUID id, @RequestParam("file") MultipartFile arquivo) {
+        try {
+            // 1. Criar o diretório se não existir
+            Path uploadPath = Paths.get("/app/uploads");
+            if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+
+            // 2. Criar um nome único para o arquivo
+            String nomeArquivo = id + "-" + arquivo.getOriginalFilename();
+            Path arquivoPath = uploadPath.resolve(nomeArquivo);
+
+            // 3. Salvar o arquivo no disco (dentro do volume Docker)
+            Files.copy(arquivo.getInputStream(), arquivoPath, StandardCopyOption.REPLACE_EXISTING);
+
+            // 4. Salvar o nome da imagem no banco de dados (MySQL)
+            Filme filme = filmeService.buscarPorId(id);
+            filme.setImagemUrl(nomeArquivo);
+            filmeService.salvar(filme);
+
+            return ResponseEntity.ok("Imagem enviada com sucesso!");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao salvar imagem");
         }
     }
 }

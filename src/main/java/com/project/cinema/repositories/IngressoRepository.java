@@ -15,6 +15,9 @@ public interface IngressoRepository extends JpaRepository<Ingresso, UUID> {
 
     List<Ingresso> findBySessaoId(UUID sessaoId);
 
+    @Query("SELECT CASE WHEN COUNT(i) > 0 THEN true ELSE false END FROM Ingresso i WHERE i.assentoSessao.assento.id IN :assentoIds")
+    boolean existsByAssentoIds(@Param("assentoIds") List<UUID> assentoIds);
+
     @Query("""
             select new com.project.cinema.dtos.relatorio.RelatorioItemDTO(
                 f.nome,

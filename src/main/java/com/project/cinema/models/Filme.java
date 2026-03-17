@@ -29,6 +29,7 @@ public class Filme {
     private String distribuidor;
     private Integer duracao; // duração em minutos
     private Double valorFilme;
+    private String imagemUrl;
 
     @OneToMany(mappedBy = "filme")
     @JsonIgnoreProperties({"filme", "sala", "ingressos"})
@@ -130,5 +131,13 @@ public class Filme {
 
     public void setSessoes(List<Sessao> sessoes) {
         this.sessoes = sessoes;
+    }
+
+    public String getImagemUrl() { 
+        return imagemUrl; 
+    }
+
+    public void setImagemUrl(String imagemUrl) { 
+        this.imagemUrl = imagemUrl; 
     }
 }
